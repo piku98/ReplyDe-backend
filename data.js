@@ -2,5 +2,5 @@ let userInfo = {}
 let chatRooms = {}
 
 
-module.exports.socketInfo = socketInfo
+module.exports.userInfo = userInfo
 module.exports.chatRooms = chatRooms

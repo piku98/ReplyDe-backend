@@ -1,4 +1,4 @@
-const { chatRooms, userInfo, socketInfo } = require("../data");
+const { chatRooms, userInfo } = require("../data");
 
 
 function createChatRoomId() {
@@ -6,12 +6,13 @@ function createChatRoomId() {
     while (true) {
         let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let charactersLength = characters.length;
-        for (let i = 0; i < length; i++) {
+        for (let i = 0; i < charactersLength; i++) {
             result += characters.charAt(Math.floor(Math.random() * charactersLength));
         }
 
         if (!chatRooms[result]) break
     }
+    return result
 }
 
 module.exports.createChatRoom = (socket, chatRoomName) => {
@@ -42,11 +43,11 @@ module.exports.chat = (socket, chatRoomId, message) => {
         socket.emit('chat_delivery_update', { success: false, message: 'chatroomId does not exist.' })
         return
     }
-    if (!chatRooms[chatRoomId].find(id => id == socket.id)) {
+    if (!chatRooms[chatRoomId].chatters.find(id => id == socket.id)) {
         socket.emit('chat_delivery_update', { success: false, message: 'you are not part of the chat room.' })
         return
     }
-    let chatterIds = chatRooms[chatRoomId].filter(id => id != socket.id)
+    let chatterIds = chatRooms[chatRoomId].chatters.filter(id => id != socket.id)
 
     chatterIds.forEach(id => {
         let chatterSocket = userInfo[id].socketObject
@@ -54,7 +55,7 @@ module.exports.chat = (socket, chatRoomId, message) => {
             chatRoomId: chatRoomId,
             from: {
                 id: socket.id,
-                name: socketInfo.name
+                name: userInfo[socket.id].name
             },
             message: message
         })
